@@ -13,10 +13,10 @@ type UserIDWithDept struct {
 }
 
 type UserListIDsResp struct {
-	Errcode    int              `json:"errcode"`
-	Errmsg     string           `json:"errmsg"`
-	NextCursor string           `json:"next_cursor"`
-	DeptUser   []UserIDWithDept `json:"dept_user"`
+	Errcode    int               `json:"errcode"`
+	Errmsg     string            `json:"errmsg"`
+	NextCursor string            `json:"next_cursor"`
+	DeptUser   []*UserIDWithDept `json:"dept_user"`
 }
 
 type userListIDsReq struct {
@@ -24,11 +24,30 @@ type userListIDsReq struct {
 	Limit  int    `json:"limit"`
 }
 
-func (c *client) UserListIDs() (*UserListIDsResp, error) {
+func (c *client) UserListIDs(limit int) ([]*UserIDWithDept, error) {
+	var (
+		users  []*UserIDWithDept
+		cursor string
+	)
+	for {
+		userListIDsResp, err := c.callUserListIDs(cursor, limit)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, userListIDsResp.DeptUser...)
+		cursor = userListIDsResp.NextCursor
+		if cursor == "" || len(userListIDsResp.DeptUser) < limit {
+			break
+		}
+	}
 
+	return users, nil
+}
+
+func (c *client) callUserListIDs(cursor string, limit int) (*UserListIDsResp, error) {
 	req := userListIDsReq{
-		Cursor: "",
-		Limit:  1000,
+		Cursor: cursor,
+		Limit:  limit,
 	}
 
 	reqBody, err := json.Marshal(req)

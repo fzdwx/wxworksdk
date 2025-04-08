@@ -9,7 +9,11 @@ type Client interface {
 	VerifyCallback(echostr string, msgSignature, nonce, timestamp string) ([]byte, error)
 	RefreshCfg(cfg *Config) error
 	Decode(content []byte) (string, error)
-	UserListIDs() (*UserListIDsResp, error)
+	// UserListIDs 获取用户列表
+	// 获取用户id列表
+	UserListIDs(limit int) ([]*UserIDWithDept, error)
+	DeptList() ([]*Department, error)
+	UserList(deptID int) ([]*UserList, error)
 }
 
 type client struct {
@@ -29,6 +33,9 @@ type Config struct {
 }
 
 func (c *Config) Check() error {
+	if c.CallbackToken == "" && c.CallbackEncodingAESKeyRaw == "" {
+		return nil
+	}
 	crypt := NewWXBizMsgCrypt(c.CallbackToken, c.CallbackEncodingAESKeyRaw, "", XmlType)
 	c.crypt = crypt
 	return nil
