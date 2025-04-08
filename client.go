@@ -9,6 +9,7 @@ type Client interface {
 	VerifyCallback(echostr string, msgSignature, nonce, timestamp string) ([]byte, error)
 	RefreshCfg(cfg *Config) error
 	Decode(content []byte) (string, error)
+	UserListIDs() (*UserListIDsResp, error)
 }
 
 type client struct {
