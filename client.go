@@ -12,7 +12,9 @@ type Client interface {
 	// UserListIDs 获取用户列表
 	// 获取用户id列表
 	UserListIDs(limit int) ([]*UserIDWithDept, error)
+	// DeptList 获取部门列表
 	DeptList() ([]*Department, error)
+	// UserList 根据部门id获取用户列表
 	UserList(deptID int) ([]*UserList, error)
 }
 
